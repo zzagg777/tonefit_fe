@@ -5,15 +5,7 @@
  * 상수로 관리하면 오타를 줄이고, 값이 바뀌면 여기만 수정하면 돼요.
  */
 
-import type {
-  ReceiverType,
-  PurposeType,
-  IndustryType,
-  CompanySizeType,
-  JobLevelType,
-  CareerYearType,
-  CorrectionLabelType,
-} from '@/types';
+import type { ReceiverType, PurposeType, CorrectionLabelType } from '@/types';
 
 // =============================================================
 // 라우팅 경로
@@ -45,6 +37,9 @@ export const ROUTES = {
   HISTORY: '/home/history', // 교정 히스토리
   SETTINGS: '/home/settings', // 사용자 설정/프로필
   PRICING: '/home/pricing', // 요금제/결제
+
+  // 데모 (크롬 익스텐션 웹 데모 버전)
+  DEMO: '/',
 } as const;
 
 // =============================================================
@@ -59,7 +54,6 @@ export const QUERY_KEYS = {
   CORRECTIONS_HISTORY: ['corrections', 'history'] as const,
   CORRECTION_DETAIL: (sessionId: number) =>
     ['corrections', 'detail', sessionId] as const,
-  CREDITS: ['credits'] as const,
 } as const;
 
 // =============================================================
@@ -70,7 +64,6 @@ export const QUERY_KEYS = {
 export const INPUT_LIMITS = {
   EMAIL_MIN_LENGTH: 10, // 원문 최소 글자 수
   EMAIL_MAX_LENGTH: 2000, // 원문 최대 글자 수
-  PASSWORD_MIN_LENGTH: 8, // 비밀번호 최소 글자 수
 } as const;
 
 // =============================================================
@@ -79,7 +72,6 @@ export const INPUT_LIMITS = {
 
 export const CORRECTION_LIMITS = {
   FREE_DAILY_LIMIT: 1, // 무료 플랜 하루 교정 횟수
-  MAX_RECORRECTIONS: 3, // 세션당 최대 재교정 횟수
 } as const;
 
 // =============================================================
@@ -104,41 +96,6 @@ export const PURPOSE_LABELS: Record<PurposeType, string> = {
   APOLOGY: '사과',
   REPLY: '회신',
   DECLINE: '거절',
-};
-
-/** 업종 한국어 라벨 */
-export const INDUSTRY_LABELS: Record<IndustryType, string> = {
-  IT: 'IT & 스타트업',
-  MANUFACTURING: '제조',
-  FINANCE: '금융 & 보험',
-  PUBLIC: '공공기관',
-  SERVICE: '서비스',
-  OTHER: '기타',
-};
-
-/** 회사 규모 한국어 라벨 */
-export const COMPANY_SIZE_LABELS: Record<CompanySizeType, string> = {
-  LARGE: '대기업',
-  MEDIUM: '중견기업',
-  SMALL: '중소기업',
-  STARTUP: '스타트업',
-};
-
-/** 직급 한국어 라벨 */
-export const JOB_LEVEL_LABELS: Record<JobLevelType, string> = {
-  INTERN: '인턴',
-  STAFF: '사원',
-  SENIOR: '대리',
-  MANAGER: '매니저',
-};
-
-/** 연차 한국어 라벨 */
-export const CAREER_YEAR_LABELS: Record<CareerYearType, string> = {
-  LESS_THAN_1: '1년 미만 (신입)',
-  YEAR_1: '1년차',
-  YEAR_2: '2년차',
-  YEAR_3: '3년차',
-  YEAR_4_OR_MORE: '4년 이상',
 };
 
 /**
@@ -198,7 +155,7 @@ export const VALIDATION_MESSAGES = {
   EMAIL_TOO_LONG: `이메일 원문은 ${INPUT_LIMITS.EMAIL_MAX_LENGTH}자 이내로 입력해 주세요.`,
   EMAIL_INCOMPLETE_CHARS:
     '교정할 수 없는 내용이에요. 완성된 글자를 입력해 주세요.',
-  PASSWORD_TOO_SHORT: `비밀번호는 ${INPUT_LIMITS.PASSWORD_MIN_LENGTH}자 이상이어야 합니다.`,
+  PASSWORD_TOO_SHORT: '비밀번호는 8자 이상이어야 합니다.',
   EMAIL_INVALID: '올바른 이메일 주소를 입력해 주세요.',
 } as const;
 
@@ -210,22 +167,18 @@ export const VALIDATION_MESSAGES = {
 export const STORAGE_KEYS = {
   /**
    * 접근 토큰 (익명 + 정식 회원 공용)
-   * 저장 위치: sessionStorage — 탭/브라우저 닫으면 자동 만료
+   * 저장 위치: localStorage — 브라우저 재시작 후에도 유지
    */
   ACCESS_TOKEN: 'tf_access_token',
-  /**
-   * 갱신 토큰 (익명 + 정식 회원 공용)
-   * 저장 위치: localStorage — 브라우저 재시작 후에도 유지 (30일)
-   */
-  REFRESH_TOKEN: 'tf_refresh_token',
-  /**
-   * 익명 사용자 토큰 (anonymous_token)
-   * 저장 위치: localStorage — 익명 세션 재식별용, 브라우저 재시작 후에도 유지
-   */
-  ANON_TOKEN: 'tf_anon_token',
   /**
    * 암호화된 이메일 초안
    * 저장 위치: localStorage — AES-GCM 암호문 (base64)
    */
   DRAFT_CIPHER: 'tf_draft_cipher',
+  /**
+   * Google OAuth 진행 중 임시 보관 id_token
+   * 저장 위치: sessionStorage — 약관 동의 페이지로 이동할 때만 사용
+   * 약관 동의 완료 또는 실패 시 즉시 삭제
+   */
+  PENDING_ID_TOKEN: 'tf_pending_id_token',
 } as const;
