@@ -74,7 +74,8 @@ export type TermsType =
   | 'PRIVACY'
   | 'ANALYTICS'
   | 'MARKETING'
-  | 'AI_LEARNING';
+  | 'AI_LEARNING'
+  | 'MAIL_READ';
 
 // =============================================================
 // 공통 타입
@@ -151,6 +152,7 @@ export interface GoogleAuthResponse {
   user_id: number;
   email: string;
   nickname: string;
+  profile_image_url: string | null;
   provider: 'GOOGLE';
   is_guest: false;
   plan: PlanType;
@@ -174,12 +176,15 @@ export interface UserProfile {
   email: string | null;
   /** 정식 유저만 (Google 프로필 표시 이름). 익명은 null */
   nickname: string | null;
+  profile_image_url: string | null;
   /** 정식 유저만. 익명은 null */
   provider: 'GOOGLE' | null;
   is_guest: boolean;
   plan: PlanType;
   credit_balance: number;
   created_at: string; // ISO 8601
+  ai_learning_agreed: boolean;
+  marketing_agreed: boolean;
 }
 
 /** PATCH /users/me/terms/{type} 요청 — 선택 약관 철회·재동의 */
@@ -203,7 +208,8 @@ export interface CorrectionChange {
   label: CorrectionLabelType; // AUTO | SUGGEST | STYLE
   confidence: number; // 교정 신뢰도 0~1
   applied_rules: string[]; // 적용된 규칙 코드
-  action: FeedbackActionType | null; // 사용자 응답 (미응답 시 null)
+  action: FeedbackActionType | null; // 사용자 수락/거절 상태
+  rejectReason?: string; // 거절 사유 (선택)
 }
 
 /** 임시저장(Draft) 요청 — 모든 필드 선택 */
@@ -245,7 +251,24 @@ export interface CorrectionRequest {
 export interface CorrectionResponse {
   session_id: number;
   changes: CorrectionChange[];
-  created_at: string;
+}
+
+/** POST /corrections/rejections 요청 — 거절 항목 보존 */
+export interface CorrectionsRejectionItem {
+  label: CorrectionLabelType;
+  original_phrase: string;
+  corrected_phrase: string;
+  meaning_damage_suspected?: boolean | null;
+}
+
+export interface CorrectionsRejectionsRequest {
+  receiver_type: ReceiverType;
+  purpose: PurposeType;
+  items: CorrectionsRejectionItem[];
+}
+
+export interface CorrectionsRejectionsResponse {
+  stored: number;
 }
 
 /**
@@ -372,4 +395,66 @@ export interface SessionDetailResponse {
   feedbacks: FeedbackDetail[];
   created_at: string;
   updated_at: string;
+}
+
+// =============================================================
+// 회신 (Replies)
+// =============================================================
+
+export interface ReplyMail {
+  sender: string;
+  body: string;
+}
+
+export interface ReplyAnalysisRequest {
+  mails: ReplyMail[];
+  to?: string[];
+  cc?: string[];
+}
+
+export interface ReplyQuestion {
+  id: number;
+  question: string;
+  mail_order?: number;
+}
+
+export interface ReplySummaryItem {
+  order: number;
+  sender: string;
+  summary: string;
+}
+
+export interface ReplySummaryResponse {
+  summaries: ReplySummaryItem[];
+}
+
+export interface ReplyAnalysisResponse {
+  conversation: string;
+  recipient: {
+    type: ReceiverType;
+    label: string;
+    confidence: 'high' | 'mid' | 'low';
+    reason: string;
+  };
+  questions: ReplyQuestion[];
+}
+
+export interface ReplyAnswer {
+  question_id: number;
+  answer: string;
+}
+
+export interface ReplyRequest {
+  conversation: string;
+  receiver_type: ReceiverType;
+  original_subject?: string;
+  questions?: ReplyQuestion[];
+  answers?: ReplyAnswer[];
+  free_input?: string;
+  extra_message?: string;
+}
+
+export interface ReplyResponse {
+  generated_subject: string;
+  generated_email: string;
 }

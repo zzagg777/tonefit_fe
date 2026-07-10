@@ -41,7 +41,7 @@ export type { ButtonGroupProps, ButtonGroupOption } from './ButtonGroup';
 export { default as Chip } from './Chip';
 export type { ChipProps } from './Chip';
 export { default as ChipV2 } from './ChipV2';
-export type { ChipPropsV2 } from './ChipV2';
+export type { ChipPropsV2, ChipSizeV2 } from './ChipV2';
 
 export { default as Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
@@ -57,6 +57,13 @@ export type {
   ButtonLongV2Variant,
   ButtonLongV2Layout,
 } from './ButtonLongV2';
+
+export { default as ButtonCoreV2 } from './ButtonCoreV2';
+export type {
+  ButtonCoreV2Props,
+  ButtonCoreV2Variant,
+  ButtonCoreV2Size,
+} from './ButtonCoreV2';
 
 export { default as ButtonCheckLongV2 } from './ButtonCheckLongV2';
 export type { ButtonCheckLongV2Props } from './ButtonCheckLongV2';
